@@ -42,6 +42,15 @@ namespace PICI0025_Reporting_Service
                 c.ResultsFilePath = settings["ResultsFilePath"].ToString();
             if (settings.ContainsKey("SMTPServer"))
                 c.SMTPServer = settings["SMTPServer"].ToString();
+
+            if (settings.ContainsKey("EmailTo"))
+                c.EmailTo = settings["EmailTo"].ToString();
+
+
+            if (settings.ContainsKey("EmailFrom"))
+                c.EmailFrom = settings["EmailFrom"].ToString();
+
+
             if (settings.ContainsKey("MainLoopPeriod"))
                 c.MainLoopPeriod = Convert.ToInt32(settings["MainLoopPeriod"].ToString());
             if (settings.ContainsKey("SMTPPort"))

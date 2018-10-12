@@ -103,7 +103,8 @@ namespace PICI0025_Reporting_Service
             if (SendEmail)
                 MailMessage(
                     _config.EmailFrom, 
-                    _config.EmailTo, message, 
+                    _config.EmailTo,
+                    message, 
                     "PICI0025 Reporting Service Message: " + messageType,
                     _config.SMTPServer,
                     _config.SMTPPort);     
