@@ -1,0 +1,25 @@
+{
+  "BaseDirectoryInput": "\\\\spidrsql3\\CRN_PDF\\PowerPathPDF\\PWRPATH\\PowerPath",
+  "BaseDirectoryOutput": "\\\\Lisw5001010\\pici0025",
+  "BaseDirectoryRedacted": "\\\\Lisw5001010\\pici0025\\Production Reports (Redacted)",
+  "ResultsFilePath": "\\\\lisw5001010\\PICI0025\\Production Data Extracts\\PICI0025 Result Summary.xls",
+  "MainLoopPeriod": 60,
+  "ConnectionString": "Server=PWRPATH;Database=POWERPATH;Trusted_Connection=True;",
+  "EmailFrom": "mark.routbort@mdanderson.org",
+  "EmailTo": "mark.routbort@mdanderson.org",
+  "SMTPServer": "mail.mdanderson.org",
+  "SMTPPort": 25,
+  "ColumnCleanerMap": {
+    "CD8Count": "CD8 Percentage",
+    "CDDensity": "CD8 Density"
+  },
+  "FacilityMap": {
+    "100": "100_TEST",
+    "101": "101_MSK",
+    "102": "102_MDA",
+    "103": "103_UCSF",
+    "104": "104_UCLA",
+    "106": "106_STANFORD",
+    "107": "106_DFCI"
+  }
+}
