@@ -4,6 +4,7 @@
   "BaseDirectoryRedacted": "\\\\Lisw5001010\\pici0025\\Production Reports (Redacted)",
   "ResultsFilePath": "\\\\lisw5001010\\PICI0025\\Production Data Extracts\\PICI0025 Result Summary.csv",
   "MainLoopPeriod": 600,
+  "BarcodeIDRegex": "P-25-\\d{3}-\\d{4}",
   "ConnectionString": "Server=PWRPATH;Database=POWERPATH;Trusted_Connection=True;",
   "EmailFrom": "mark.routbort@mdanderson.org",
   "EmailTo": "mark.routbort@mdanderson.org;RCPepper@mdanderson.org",

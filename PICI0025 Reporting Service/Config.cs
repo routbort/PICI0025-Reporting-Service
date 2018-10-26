@@ -25,6 +25,7 @@ namespace PICI0025_Reporting_Service
         public int SMTPPort { get; set; }
         public Dictionary<string, object> ColumnCleanerMap { get; set; }
         public Dictionary<string, object> FacilityMap { get; set; }
+        public string BarcodeIDRegex { get; set; }
 
 
         public static Config LoadFromJSON(string JSON)
@@ -61,6 +62,8 @@ namespace PICI0025_Reporting_Service
                 c.ColumnCleanerMap = settings["ColumnCleanerMap"] as Dictionary<string, object>;
             if (settings.ContainsKey("FacilityMap"))
                 c.FacilityMap = settings["FacilityMap"] as Dictionary<string, object>;
+            if (settings.ContainsKey("BarcodeIDRegex"))
+                c.BarcodeIDRegex = settings["BarcodeIDRegex"].ToString();
             return c;
         }
 

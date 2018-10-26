@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace PICI0025_Reporting_Service
 {
@@ -44,6 +45,7 @@ namespace PICI0025_Reporting_Service
         public void DoWork()
         {
 
+            Regex re = new Regex(_Config.BarcodeIDRegex);
 
             DataTable table = _DataInterface.GetPendingReportDeliveries();
             if (table.Rows.Count != 0)
@@ -57,49 +59,67 @@ namespace PICI0025_Reporting_Service
 
                 foreach (DataRow row in table.Rows)
                 {
-                    string accession_no = row["accession_no"].ToString();
                     int acc_report_id = Convert.ToInt32(row["acc_report_id"]);
-                    string guid = row["PDF_GUID"].ToString();
-                    string med_rec_no = row["med_rec_no"].ToString();
-                    string barcode = row["barcode"].ToString();
-                    string directory_prefix = row["directory_prefix"].ToString();
-                    DateTime lock_date = Convert.ToDateTime(row["lock_date"]);
-                    string copyFrom = Path.Combine(_Config.BaseDirectoryInput, directory_prefix, guid + ".pdf");
-                    string[] pieces = barcode.Split(SPLITTER);
-                    string facility_code = pieces[2];
-                    string facility = _Config.FacilityMap[facility_code].ToString();
-                    string PSN = pieces[3];
-                    string filename = "PICI0025-" + facility_code + "-" + PSN + " " + accession_no + " " + lock_date.ToString("MM-dd-yyyy hh-mm tt");
-                    string copyToNonredacted = Path.Combine(_Config.BaseDirectoryOutput, facility, filename + ".pdf");
-                    string copyToRedacted = Path.Combine(_Config.BaseDirectoryRedacted, filename + "_redacted.pdf");
-                    if (!File.Exists(copyFrom))
+                    string accession_no = row["accession_no"].ToString();
+                    try
+                    {                     
+                        string guid = row["PDF_GUID"].ToString();
+                        string med_rec_no = row["med_rec_no"].ToString();
+                        string barcode = row["barcode"].ToString();
+                        if (!re.IsMatch(barcode))
+                            throw new ApplicationException("Barcode ID " + barcode + " does not match template " + _Config.BarcodeIDRegex);
+                        string directory_prefix = row["directory_prefix"].ToString();
+                        DateTime lock_date = Convert.ToDateTime(row["lock_date"]);
+                        string copyFrom = Path.Combine(_Config.BaseDirectoryInput, directory_prefix, guid + ".pdf");
+                        string[] pieces = barcode.Split(SPLITTER);
+                        string facility_code = pieces[2];
+                        if (!_Config.FacilityMap.ContainsKey(facility_code))
+                            throw new ApplicationException("Facility code " + facility_code + " is not valid.");
+                        string facility = _Config.FacilityMap[facility_code].ToString();
+                        string PSN = pieces[3];
+                        string filename = "PICI0025-" + facility_code + "-" + PSN + " " + accession_no + " " + lock_date.ToString("MM-dd-yyyy hh-mm tt");
+                        string copyToNonredacted = Path.Combine(_Config.BaseDirectoryOutput, facility, filename + ".pdf");
+                        string copyToRedacted = Path.Combine(_Config.BaseDirectoryRedacted, filename + "_redacted.pdf");
+                        if (!File.Exists(copyFrom))
+                        {
+                            LogEvent?.Invoke(this, new LogInfoEventArgs()
+                            {
+                                Message = "Unable to find expected file " + copyFrom,
+                                Type = LogInfoEventArgs.LogInfoType.ERROR,
+                                SendEmail = true
+                            });
+                        }
+
+                        else
+                        {
+                            File.Copy(copyFrom, copyToNonredacted, true);
+                            var images = OncoSeek.Core.PDFHelper.RenderImagesFromPDF(copyToNonredacted, 200);
+                            bool FirstPage = true;
+                            foreach (var image in images)
+                            {
+                                OncoSeek.Core.ImageHelper.RedactImage(image, 0.58f, (FirstPage) ? 0.115f : 0.105f, 0.38f, 0.045f);
+                                FirstPage = false;
+                            }
+                            OncoSeek.Core.PDFHelper.RenderImagesToPDF(images, copyToRedacted);
+                            LogEvent?.Invoke(this, new LogInfoEventArgs()
+                            {
+                                Message = "Successfully generated report " + filename,
+                                Type = LogInfoEventArgs.LogInfoType.Success,
+                                SendEmail = true
+                            });
+                            _DataInterface.MarkReportAsDelivered(acc_report_id, null);
+                        }
+                    }
+                    catch (Exception ex)
                     {
+                        string ErrorMessage = "Error on case " + accession_no + Environment.NewLine + ex.Message + Environment.NewLine + Environment.NewLine + ex.StackTrace;
                         LogEvent?.Invoke(this, new LogInfoEventArgs()
                         {
-                            Message = "Unable to find expected file " + copyFrom,
+                            Message = ErrorMessage,
                             Type = LogInfoEventArgs.LogInfoType.ERROR,
                             SendEmail = true
                         });
-                    }
-
-                    else
-                    {
-                        File.Copy(copyFrom, copyToNonredacted, true);
-                        var images = OncoSeek.Core.PDFHelper.RenderImagesFromPDF(copyToNonredacted, 200);
-                        bool FirstPage = true;
-                        foreach (var image in images)
-                        {
-                            OncoSeek.Core.ImageHelper.RedactImage(image, 0.58f, (FirstPage) ? 0.115f : 0.105f, 0.38f, 0.045f);
-                            FirstPage = false;
-                        }
-                        OncoSeek.Core.PDFHelper.RenderImagesToPDF(images, copyToRedacted);
-                        LogEvent?.Invoke(this, new LogInfoEventArgs()
-                        {
-                            Message = "Successfully generated report " + filename,
-                            Type = LogInfoEventArgs.LogInfoType.Success,
-                            SendEmail = true
-                        });
-                        _DataInterface.MarkReportAsDelivered(acc_report_id);
+                        _DataInterface.MarkReportAsDelivered(acc_report_id, ErrorMessage);
                     }
                 }
 

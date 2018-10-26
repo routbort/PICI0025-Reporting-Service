@@ -25,7 +25,7 @@ public class DataInterface
         using (SqlCommand command = new SqlCommand
         {
             Connection = connection,
-            CommandText = "select * from dbo.a_PICI0025_report_delivery_queue_mdacc where delivery_date is null",
+            CommandText = "select * from dbo.a_PICI0025_report_delivery_queue_mdacc where delivery_date is null and error_count<3",
             CommandType = CommandType.Text
         })
         {
@@ -62,17 +62,23 @@ public class DataInterface
 
     }
 
-    public void MarkReportAsDelivered(int acc_report_id)
+    public void MarkReportAsDelivered(int acc_report_id, string ErrorMessage)
     {
 
         using (SqlConnection connection = new SqlConnection(this.ConnectionString))
-        using (SqlCommand command = new SqlCommand
+        using (SqlCommand command = new SqlCommand())
         {
-            Connection = connection,
-            CommandText = "update dbo.a_PICI0025_report_delivery_queue_mdacc set delivery_date = GETDATE() where acc_report_id = " + acc_report_id.ToString(),
-            CommandType = CommandType.Text
-        })
-        {
+
+            command.Connection = connection;
+            command.CommandType = CommandType.Text;
+            if (ErrorMessage == null)
+                command.CommandText = "update dbo.a_PICI0025_report_delivery_queue_mdacc set is_error=0,delivery_date = GETDATE() where acc_report_id = " + acc_report_id.ToString();
+            else
+            {
+                command.CommandText = "update dbo.a_PICI0025_report_delivery_queue_mdacc set is_error=1,error_message = @error_message, error_count = error_count+1 where acc_report_id = " + acc_report_id.ToString();
+                command.Parameters.AddWithValue("@error_message", ErrorMessage);
+            }
+
             connection.Open();
             command.ExecuteNonQuery();
             connection.Close();
