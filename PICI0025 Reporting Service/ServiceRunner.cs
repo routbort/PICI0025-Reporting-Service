@@ -67,7 +67,7 @@ namespace PICI0025_Reporting_Service
                 }
                 catch (Exception ex)
                 {
-                    LogEvent(ex.Message, true, "ERROR");
+                    LogEvent(ex.Message + System.Environment.NewLine + System.Environment.NewLine + ex.StackTrace, true, "ERROR");
                 }
 
                 _workTimer.Change(1000 * _config.MainLoopPeriod, Timeout.Infinite);  //define the next loop tick
