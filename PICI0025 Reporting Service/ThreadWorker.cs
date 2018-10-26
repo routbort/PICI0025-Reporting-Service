@@ -143,13 +143,13 @@ namespace PICI0025_Reporting_Service
                     }
                 }
 
-                char tab = '\t';
+                char colDelim = ',';
                 StringBuilder sb = new StringBuilder(100 * 1024);
                 bool First = true;
                 foreach (string columnKey in columns)
                 {
                     if (!First)
-                        sb.Append(tab);
+                        sb.Append(colDelim);
                     sb.Append(GetCleanColumnName(columnKey));
                     First = false;
                 }
@@ -161,18 +161,34 @@ namespace PICI0025_Reporting_Service
                     foreach (string columnKey in columns)
                     {
                         if (!First)
-                            sb.Append(tab);
+                            sb.Append(colDelim);
                         if (results[id].ContainsKey(columnKey))
-                            sb.Append(results[id][columnKey]);
+                            sb.Append(EscapeColumn(results[id][columnKey]));
                         First = false;
                     }
                     sb.Append(System.Environment.NewLine);
                 }
 
-                string resultTSV = sb.ToString();
-                File.WriteAllText(_Config.ResultsFilePath, resultTSV);
+                string resultCSV = sb.ToString();
+                File.WriteAllText(_Config.ResultsFilePath, resultCSV);
             }
         }
+
+
+        /// <summary>
+        /// Escape a field value for CSV format
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        string EscapeColumn(string input)
+        {
+            if (!input.Contains("\"") & !input.Contains(","))
+                return input;
+            else
+                return "\"" + input.Replace("\"", "\"\"") + "\"";
+
+        }
+
 
     }
 }

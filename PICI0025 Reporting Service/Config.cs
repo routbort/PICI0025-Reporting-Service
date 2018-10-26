@@ -67,7 +67,7 @@ namespace PICI0025_Reporting_Service
         public static string GetDefaultConfigJSON()
         {
             
-            string filename = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "config.json");
+            string filename = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.json");
             return File.ReadAllText(filename);
         }
         public static Config GetDefaultConfig()
