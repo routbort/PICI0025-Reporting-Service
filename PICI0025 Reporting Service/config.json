@@ -1,7 +1,7 @@
 {
   "BaseDirectoryInput": "\\\\spidrsql3\\CRN_PDF\\PowerPathPDF\\PWRPATH\\PowerPath",
-  "BaseDirectoryOutput": "\\\\Lisw5001010\\pici0025",
-  "BaseDirectoryRedacted": "\\\\Lisw5001010\\pici0025\\Production Reports (Redacted)",
+  "BaseDirectoryOutput": "\\\\lisw161916\\pici0025",
+  "BaseDirectoryRedacted": "\\\\lisw161916\\pici0025\\Production Reports (Redacted)",
   "ResultsFilePath": "\\\\lisw161916\\PICI0025\\Production Data Extracts\\PICI0025 Result Summary.csv",
   "MainLoopPeriod": 600,
   "BarcodeIDRegex": "T-P25-\\d{3}-\\d{4}",
